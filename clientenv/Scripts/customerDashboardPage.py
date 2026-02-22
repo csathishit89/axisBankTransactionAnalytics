@@ -4,6 +4,7 @@ import categoryBasedSpendFetch
 import accountTransactionsFetch
 import pandas as pd
 import matplotlib.pyplot as plt
+import plotly.express as px
 from decimal import Decimal
 
 def customer_dashboard(st, user_id, user_name):
@@ -26,6 +27,8 @@ def customer_dashboard(st, user_id, user_name):
     total_debits = ''
     closing_balance = ''
     total_transactions = ''
+    period = ''
+    total_txns = 0
     
     if accountInformation:
         for record in accountInformation:
@@ -159,16 +162,62 @@ def customer_dashboard(st, user_id, user_name):
 
         st.pyplot(fig)
         
-    column_names = ['date', 'amount']
+    column_names = ['date', 'amount', 'transaction_type', 'category']
     loadAccTransactionsDf = pd.DataFrame(loadAccountTransactions, columns=column_names)
     
     loadAccTransactionsDf["date"] = pd.to_datetime(loadAccTransactionsDf["date"])
 
-    loadAccTransactionsDf["expense"] = loadAccTransactionsDf["amount"].apply(lambda x: abs(x) if x < 0 else x)
+    # Expense (Debit)
+    loadAccTransactionsDf["expense"] = loadAccTransactionsDf["amount"].where(
+        loadAccTransactionsDf["transaction_type"] == "DR", 0
+    ).abs()
+
+    # Income (Credit)
+    loadAccTransactionsDf["income"] = loadAccTransactionsDf["amount"].where(
+        loadAccTransactionsDf["transaction_type"] == "CR", 0
+    ).abs()
+        
     loadAccTransactionsDf["year_month"] = loadAccTransactionsDf["date"].dt.to_period("M")
     monthly_spend = loadAccTransactionsDf.groupby("year_month")["expense"].sum().reset_index()
     monthly_spend["year_month"] = monthly_spend["year_month"].dt.to_timestamp()
+   
+    loadAccTransactionsDf["year"] = loadAccTransactionsDf["date"].dt.year
+    available_years = sorted(loadAccTransactionsDf["year"].dropna().unique())
+    available_years = ["All Years"] + list(available_years)
     
+    selected_year = st.selectbox("Select Year", available_years, index=0)
+    
+    filtered_df = loadAccTransactionsDf
+    
+    if selected_year!= 'All Years':
+        filtered_df = loadAccTransactionsDf[
+            loadAccTransactionsDf["year"] == selected_year
+        ].copy()
+
+        # Clean amount first
+        filtered_df["amount"] = (
+            filtered_df["amount"]
+            .astype(str)
+            .str.replace(",", "", regex=False)
+        )
+
+        filtered_df["amount"] = pd.to_numeric(filtered_df["amount"], errors="coerce")
+
+        # Create expense column (after numeric conversion)
+        # filtered_df["expense"] = filtered_df["amount"].apply(lambda x: abs(x) if x < 0 else x)
+
+        # Create year_month properly
+        filtered_df["year_month"] = pd.to_datetime(filtered_df["date"]).dt.to_period("M")
+
+        # Group by year_month
+        monthly_spend = (
+            filtered_df
+            .groupby("year_month")["expense"]
+            .sum()
+            .reset_index()
+        )
+        monthly_spend["year_month"] = monthly_spend["year_month"].dt.to_timestamp()
+        
     col1, col2 = st.columns([1, 1])
     with col1:
         # ==============================
@@ -177,13 +226,14 @@ def customer_dashboard(st, user_id, user_name):
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown('<div class="axis-title">Monthly Spending Trend</div>', unsafe_allow_html=True)
         
-        plt.figure(figsize=(10,6))
+        plt.figure(figsize=(12,8))
         plt.plot(monthly_spend["year_month"], monthly_spend["expense"], marker='o')
 
-        plt.title("Monthly Spending Trend")
-        plt.xlabel("Month")
-        plt.ylabel("Total Spending")
-        plt.xticks(rotation=45)
+        # plt.title("Monthly Spending Trend", fontsize=18, fontweight='bold')
+        plt.xlabel("Month", fontsize=16)
+        plt.ylabel("Total Spending", fontsize=16)
+        plt.xticks(rotation=45, fontsize=14)
+        plt.yticks(fontsize=14)
         plt.grid(True)
 
         plt.tight_layout()
@@ -196,16 +246,201 @@ def customer_dashboard(st, user_id, user_name):
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown('<div class="axis-title">Monthly Spending Comparison</div>', unsafe_allow_html=True)
         
-        plt.figure(figsize=(10,6))
+        plt.figure(figsize=(12,8))
         plt.bar(monthly_spend["year_month"].astype(str), monthly_spend["expense"])
 
-        plt.title("Monthly Spending Comparison")
-        plt.xlabel("Month")
-        plt.ylabel("Total Spending")
-        plt.xticks(rotation=90)
-
+        # plt.title("Monthly Spending Comparison", fontsize=18, fontweight='bold')
+        plt.xlabel("Month", fontsize=16)
+        plt.ylabel("Total Spending", fontsize=16)
+        plt.xticks(rotation=90, fontsize=14)
+        plt.yticks(fontsize=14)
         plt.tight_layout()
         st.pyplot(plt) 
+    
+    # Group monthly
+    monthly_summary = (
+        filtered_df
+        .groupby("year_month")[["income", "expense"]]
+        .sum()
+        .reset_index()
+    )
+
+    # Convert Period → Timestamp (IMPORTANT for matplotlib)
+    monthly_summary["year_month"] = monthly_summary["year_month"].dt.to_timestamp()
+    
+    col1, col2 = st.columns([1,1])
+    with col1:
+        # ==============================
+        # Income vs Expense - {selected_year}
+        # ==============================
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="axis-title">Income vs Expense - {selected_year}</div>',
+            unsafe_allow_html=True
+        )
+        plt.figure(figsize=(12,8))
+
+        plt.plot(
+            monthly_summary["year_month"],
+            monthly_summary["income"],
+            marker='o',
+            label="Income"
+        )
+
+        plt.plot(
+            monthly_summary["year_month"],
+            monthly_summary["expense"],
+            marker='o',
+            label="Expense"
+        )
+
+        # plt.title(f"Income vs Expense - {selected_year}", fontsize=18, fontweight="bold")
+        plt.xlabel("Month", fontsize=16)
+        plt.ylabel("Amount", fontsize=16)
+
+        plt.xticks(rotation=45, fontsize=14)
+        plt.yticks(fontsize=14)
+        plt.legend()
+        plt.grid(True)
+
+        plt.tight_layout()
+        st.pyplot(plt)
+        
+    category_spend = (
+        filtered_df[filtered_df["expense"] > 0]
+        .groupby("category")["expense"]
+        .sum()
+        .sort_values(ascending=False)
+        .head(10)
+        .reset_index()
+    )
+    
+    with col2:
+        # ==============================
+        # Top Category spend
+        # ==============================
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="axis-title">Top 10 Category spend - {selected_year}</div>',
+            unsafe_allow_html=True
+        )
+        plt.figure(figsize=(12,8))
+
+        plt.barh(
+            category_spend["category"],
+            category_spend["expense"]
+        )
+
+        # plt.title(f"Top 10 Category Spending - {selected_year}", fontsize=18, fontweight="bold")
+
+        plt.xlabel("Total Expense", fontsize=16)
+        plt.ylabel("Category", fontsize=16)
+        plt.xticks(rotation=45, fontsize=14)
+        plt.yticks(fontsize=14)
+        plt.gca().invert_yaxis()  # Highest on top
+
+        plt.tight_layout()
+        st.pyplot(plt)
+        
+    # Group by category
+    category_spend = filtered_df.groupby("category")["expense"].sum()
+
+    # Sort descending
+    category_spend = category_spend.sort_values(ascending=False)
+
+    # Top 10
+    top10 = category_spend.head(10)
+
+    # Remaining as "Other"
+    if len(category_spend) > 10:
+        other = category_spend.iloc[10:].sum()
+        top10["Other"] = other
+
+    top10 = top10.astype(float)
+
+    col1, col2 = st.columns([1,1])
+    with col1:
+        # ==============================
+        # Top 10 Category Spend - {selected_year}
+        # ==============================
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="axis-title">Top 10 Category Spend {selected_year}</div>',
+            unsafe_allow_html=True
+        )
+        plt.figure(figsize=(10,10))
+        fig, ax = plt.subplots()
+
+        wedges, texts, autotexts = plt.pie(
+            top10,
+            labels=top10.index,
+            autopct='%1.1f%%',
+            startangle=75,
+            wedgeprops={'width':0.65},
+            pctdistance=0.75   # Move % slightly outward
+        )
+
+        # Increase % font size
+        for autotext in autotexts:
+            autotext.set_fontsize(8)
+            autotext.set_weight("bold")
+                
+        # ax.set_title("Top 10 Category Spend")
+
+        st.pyplot(fig)
+        
+    with col2:
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
+        top10 = (
+            filtered_df[filtered_df["expense"] > 0]
+                .groupby("category", as_index=False)["expense"]
+                .sum()
+                .sort_values("expense", ascending=False)
+                .head(10)
+        )
+
+        # Add "Other" category if needed
+        total_categories = (
+            filtered_df[filtered_df["expense"] > 0]
+                .groupby("category")["expense"]
+                .sum()
+                .sort_values(ascending=False)
+        )
+
+        if len(total_categories) > 10:
+            other_sum = total_categories.iloc[10:].sum()
+            top10.loc[len(top10)] = ["Other", other_sum]
+
+        top10["expense"] = top10["expense"].astype(float)
+
+        fig = px.pie(
+            top10,
+            names="category",
+            values="expense",
+            hole=0.5,
+        )
+
+        fig.update_traces(
+            textinfo="percent+label",
+            hovertemplate="<b>%{label}</b><br>" +
+                        "Amount: ₹%{value:,.0f}<br>" +
+                        "Percentage: %{percent}"
+        )
+
+        fig.update_layout(
+            title={
+                "text": f"Top 10 Category Spend - {selected_year}",
+                "x": 0.5,
+                "xanchor": "center",
+                "font": {"size": 20}
+            },
+            legend_title="Category",
+            height=425
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
 
     st.markdown("""
     <style>

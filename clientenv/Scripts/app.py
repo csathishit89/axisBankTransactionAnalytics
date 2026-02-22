@@ -10,7 +10,7 @@ from streamlit_js_eval import streamlit_js_eval
 
 st.set_page_config(
     page_title="Axis Bank | Statement Analysis",
-    page_icon="C:/MAMP/htdocs/axisBankStatementAnalysis/clientenv/Scripts/fav_icon.png",
+    page_icon="C:/MAMP/htdocs/axisBankTransactionAnalytics/clientenv/Scripts/fav_icon.png",
     layout="wide"
 ) 
 

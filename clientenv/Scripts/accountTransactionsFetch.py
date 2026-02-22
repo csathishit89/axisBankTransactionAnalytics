@@ -7,7 +7,7 @@ def accountTransactionsFetch(account_id):
         cursor = connectionInfo.conn.cursor()
 
         query = """
-            SELECT T.transaction_date, T.debit_amount FROM transaction T WHERE T.account_id = %s
+            SELECT T.transaction_date, T.debit_amount, T.transaction_type, C.category FROM transaction T INNER JOIN category C on T.transaction_id=C.transaction_id WHERE T.account_id = %s
         """
 
         cursor.execute(query, (account_id,))

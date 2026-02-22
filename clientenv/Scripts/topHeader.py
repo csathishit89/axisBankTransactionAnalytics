@@ -1,7 +1,7 @@
 from customFunction import get_base64_image
 
 def topHeader(st, user_name):
-    img_base64 = get_base64_image(r"C:\MAMP\htdocs\axisBankStatementAnalysis\clientenv\Scripts\fav_icon.png")
+    img_base64 = get_base64_image(r"C:\MAMP\htdocs\axisBankTransactionAnalytics\clientenv\Scripts\fav_icon.png")
     
      # ---------- Inject CSS + HTML ----------
     st.markdown(

@@ -8,7 +8,7 @@ def login_form(st, authenticateUser, streamlit_js_eval):
             
             # ---- AXIS LOGO ----
             st.image(
-                "C:/MAMP/htdocs/axisBankStatementAnalysis/clientenv/Scripts/fav_icon.png",   # your downloaded logo file
+                r"C:\MAMP\htdocs\axisBankTransactionAnalytics\clientenv\Scripts\fav_icon.png",   # your downloaded logo file
                 width=100
             )
 
