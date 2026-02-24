@@ -5,7 +5,8 @@ def authenticate_user(username_attempt, password_attempt):
     cursor = None
 
     try:
-        cursor = connectionInfo.conn.cursor()
+        conn = connectionInfo.get_connection()
+        cursor = conn.cursor()
 
         query = """
             SELECT user_id, user_password, user_role, username

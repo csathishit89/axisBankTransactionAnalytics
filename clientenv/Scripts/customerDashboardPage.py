@@ -114,10 +114,12 @@ def customer_dashboard(st, user_id, user_name):
     columns = ["date", "description", "amount", "category", "type"]
     categoryBasedSpendInformation = categoryBasedSpendFetch.categoryBasedSpendFetch(account_id)
     
-    expense_df = pd.DataFrame(categoryBasedSpendInformation, columns=columns)
-    if expense_df.empty:
-        st.warning("No expense data available")
-        return
+    if categoryBasedSpendInformation:
+        expense_df = pd.DataFrame(categoryBasedSpendInformation, columns=columns)
+    
+        if expense_df.empty:
+            st.warning("No expense data available")
+            return
 
     # Group by category
     category_spend = (
@@ -161,19 +163,19 @@ def customer_dashboard(st, user_id, user_name):
         st.markdown('<div class="axis-title">Category-wise Spending</div>', unsafe_allow_html=True)
 
         st.pyplot(fig)
-        
-    column_names = ['date', 'amount', 'transaction_type', 'category']
+    
+    column_names = ['date', 'debit_amount', 'credit_amount', 'transaction_type', 'category']
     loadAccTransactionsDf = pd.DataFrame(loadAccountTransactions, columns=column_names)
     
     loadAccTransactionsDf["date"] = pd.to_datetime(loadAccTransactionsDf["date"])
 
     # Expense (Debit)
-    loadAccTransactionsDf["expense"] = loadAccTransactionsDf["amount"].where(
+    loadAccTransactionsDf["expense"] = loadAccTransactionsDf["debit_amount"].where(
         loadAccTransactionsDf["transaction_type"] == "DR", 0
     ).abs()
 
     # Income (Credit)
-    loadAccTransactionsDf["income"] = loadAccTransactionsDf["amount"].where(
+    loadAccTransactionsDf["income"] = loadAccTransactionsDf["credit_amount"].where(
         loadAccTransactionsDf["transaction_type"] == "CR", 0
     ).abs()
         
@@ -195,16 +197,16 @@ def customer_dashboard(st, user_id, user_name):
         ].copy()
 
         # Clean amount first
-        filtered_df["amount"] = (
-            filtered_df["amount"]
+        filtered_df["debit_amount"] = (
+            filtered_df["debit_amount"]
             .astype(str)
             .str.replace(",", "", regex=False)
         )
 
-        filtered_df["amount"] = pd.to_numeric(filtered_df["amount"], errors="coerce")
+        filtered_df["debit_amount"] = pd.to_numeric(filtered_df["debit_amount"], errors="coerce")
 
         # Create expense column (after numeric conversion)
-        # filtered_df["expense"] = filtered_df["amount"].apply(lambda x: abs(x) if x < 0 else x)
+        # filtered_df["expense"] = filtered_df["debit_amount"].apply(lambda x: abs(x) if x < 0 else x)
 
         # Create year_month properly
         filtered_df["year_month"] = pd.to_datetime(filtered_df["date"]).dt.to_period("M")

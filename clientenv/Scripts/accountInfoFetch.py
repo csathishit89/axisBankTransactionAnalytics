@@ -4,7 +4,8 @@ def accountInfoFetch(user_id):
     cursor = None
 
     try:
-        cursor = connectionInfo.conn.cursor()
+        conn = connectionInfo.get_connection()
+        cursor = conn.cursor()
 
         query = """
             SELECT account_id, account_number, account_name, account_type, 

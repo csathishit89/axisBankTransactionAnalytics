@@ -123,18 +123,17 @@ if 'logged_in' not in st.session_state:
 
 if 'current_page' not in st.session_state:
     st.session_state['current_page'] = 'Upload'
-else:
-    st.session_state['current_page'] = 'Dashboard'
 
 ###### Main Flow  - Start #####
 if st.session_state['logged_in'] == True:
     user_role = streamlit_js_eval(js_expressions="localStorage.getItem('user_role_token')", key='user_role_token_check')
     if user_role!='null' and user_role!='undefined' and user_role!=None:
         user_id = streamlit_js_eval(js_expressions="localStorage.getItem('user_id_token')", key='user_id_token_check')
+        user_page_select = streamlit_js_eval(js_expressions="localStorage.getItem('user_page_select_token')", key='user_page_select_check')
         user_name = streamlit_js_eval(js_expressions="localStorage.getItem('user_name_token')", key='user_name_token_check')
-        if st.session_state['current_page'] == 'Upload':
+        if user_page_select == 'Upload':
             statementPdfUploadPage.statement_pdf_upload(st, user_id, user_name)
-        elif st.session_state['current_page'] == 'Dashboard':
+        elif user_page_select == 'Dashboard':
             if user_role == 'Customer':
                 customerDashboardPage.customer_dashboard(st, user_id, user_name)
             elif user_role == 'Management':
@@ -146,6 +145,7 @@ if st.session_state['logged_in'] == True:
             streamlit_js_eval(js_expressions="localStorage.removeItem('user_name_token');", key='user_name_token_clear')
             streamlit_js_eval(js_expressions="localStorage.removeItem('user_role_token');", key='user_role_token_clear')
             streamlit_js_eval(js_expressions="localStorage.removeItem('user_id_token');", key='user_id_token_clear')
+            streamlit_js_eval(js_expressions="localStorage.removeItem('user_page_select_token');", key='user_page_select_token_clear')
             st.session_state['logged_in'] = False
             
             import time

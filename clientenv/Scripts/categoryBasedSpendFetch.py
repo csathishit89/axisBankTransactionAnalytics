@@ -4,7 +4,8 @@ def categoryBasedSpendFetch(account_id):
     cursor = None
 
     try:
-        cursor = connectionInfo.conn.cursor()
+        conn = connectionInfo.get_connection()
+        cursor = conn.cursor()
 
         query = """
             SELECT T.transaction_date, T.description_text, T.debit_amount, C.category, T.transaction_type FROM transaction T INNER JOIN category C on T.transaction_id=C.transaction_id WHERE T.account_id = %s and T.transaction_type='DR'

@@ -1,4 +1,11 @@
+import streamlit as st
+def handle_page_change():
+    selected = st.session_state["page_select"]
+    st.session_state["current_page"] = selected
+
 def login_form(st, authenticateUser, streamlit_js_eval):
+    pageLandingOn = None
+    
     with st.container(border=True):
     # ---------- LAYOUT ----------
         col1, col2 = st.columns([2,3], gap="large")
@@ -20,9 +27,11 @@ def login_form(st, authenticateUser, streamlit_js_eval):
 
             pageLandingOn = st.selectbox(
                 "Login directly to",
-                ["Upload","Dashboard"]
+                ["Upload", "Dashboard"],
+                key="page_select",
+                on_change=handle_page_change
             )
-
+            
             login_btn = st.button("Login")
 
             if login_btn:
@@ -45,7 +54,9 @@ def login_form(st, authenticateUser, streamlit_js_eval):
                         js_code = f'localStorage.setItem("user_id_token", "{checkAuthUser[0]}");'
                         streamlit_js_eval(js_expressions=js_code, key='user_id_token_set')
                         
-                        st.session_state['current_page'] = pageLandingOn
+                        selected = st.session_state["page_select"]
+                        js_code = f'localStorage.setItem("user_page_select_token", "{selected}");'
+                        streamlit_js_eval(js_expressions=js_code, key='user_page_select_token_set')
                         
                         import time
                         time.sleep(1)
