@@ -443,7 +443,6 @@ def customer_dashboard(st, user_id, user_name):
 
         st.plotly_chart(fig, use_container_width=True)
 
-
     st.markdown("""
     <style>
     /* Remove default top padding */

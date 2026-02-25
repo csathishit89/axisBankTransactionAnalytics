@@ -5,7 +5,7 @@ import hashlib
 import csv
 import connectionInfo
 
-CSV_FILE_PATH = r"C:\MAMP\htdocs\axisBankStatementAnalysis\clientenv\Scripts\user_credentials.csv"
+CSV_FILE_PATH = r"C:\MAMP\htdocs\axisBankTransactionAnalytics\clientEnv\Scripts\user_credentials - loanUser.csv"
 TABLE_NAME = "users"
 
 def insert_data_from_csv(csv_path, table_name):
@@ -15,7 +15,8 @@ def insert_data_from_csv(csv_path, table_name):
     """
     try:
         # Establish connection
-        cur = connectionInfo.conn.cursor()
+        conn = connectionInfo.get_connection()
+        cur = conn.cursor()
         
         insert_query = f"""
             INSERT INTO {table_name} (userid, username, user_password, user_role)
@@ -37,15 +38,15 @@ def insert_data_from_csv(csv_path, table_name):
         if data_to_insert:
             # 3. Execute the batch insert
             cur.executemany(insert_query, data_to_insert)
-            connectionInfo.conn.commit()
+            conn.commit()
             print(f"✅ Successfully inserted {len(data_to_insert)} rows into {table_name}.")
             
     except (Exception, psycopg2.Error) as error:
         print(f"❌ Error while connecting to PostgreSQL or inserting data: {error}")
     finally:
         # Close the database connection
-        if connectionInfo.conn:
+        if conn:
             cur.close()
-            connectionInfo.conn.close()
+            conn.close()
 
 insert_data_from_csv(CSV_FILE_PATH, TABLE_NAME)
