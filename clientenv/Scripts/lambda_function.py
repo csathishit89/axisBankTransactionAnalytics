@@ -284,7 +284,7 @@ def upload_to_db(acc_info, pdf_name):
         print("Account Data inserted successfully!")
 
     except Exception as e:
-        print(f"Database error: {e}")
+        print(f"Database error load lambda func : {e}")
     finally:
         if conn:
             cur.close()

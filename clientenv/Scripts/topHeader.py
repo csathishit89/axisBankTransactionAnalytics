@@ -28,7 +28,7 @@ def topHeader(st, user_name):
         }}
         
         header[data-testid="stHeader"]::after {{
-            content: "{user_name}";
+            content: "{user_name} ";
             color: #FFFFFF;
             font-size: 14px;
             font-weight: bold;

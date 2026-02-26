@@ -10,6 +10,11 @@ from decimal import Decimal
 def customer_dashboard(st, user_id, user_name):
     topHeader.topHeader(st, user_name)
     
+    if st.session_state['current_page'] == "customer_dashboard":
+        if st.button("← Back to Dashboard"):
+            st.session_state['current_page'] = 'Dashboard'
+            st.rerun()
+        
     accountInformation = accountInfoFetch.accountInfoFetch(user_id)
     
     account_id = 0

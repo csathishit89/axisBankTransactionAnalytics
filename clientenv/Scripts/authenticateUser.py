@@ -32,7 +32,8 @@ def authenticate_user(username_attempt, password_attempt):
             return False
 
     except Exception as e:
-        print(f"Database error: {e}")
+        print(f"Database error auth user: {e}")
+        connectionInfo.get_active_connection()
         return False
 
     finally:

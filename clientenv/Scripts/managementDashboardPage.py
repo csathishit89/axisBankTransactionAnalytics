@@ -15,7 +15,6 @@ import plotly.graph_objects as go
 
 
 def management_dashboard(st, user_id, user_name):
-    # management dashboard page
     topHeader.topHeader(st, user_name)
     
     managementDashboardCountInfo = managementDashboardCountFetch.managementDashboardCountFetch()
@@ -33,35 +32,34 @@ def management_dashboard(st, user_id, user_name):
     total_loans_outstanding = 0
     total_profit = 0
     
-    def kpi_card(title, value):
-        st.markdown(f"""
-            <div class="kpi-card">
-                <div class="kpi-title">{title}</div>
-                <div class="kpi-value">{value}</div>
-            </div>
-    """, unsafe_allow_html=True)
+    def kpi_card(title, value, key):
+        if st.button(f"{title}\n{value}", key=key, use_container_width=True):
+            if key == "total_customers":
+                print('on customer card click')
+                st.session_state['current_page'] = "customers_list"
+                st.rerun()
         
     col1, col2, col3, col4 = st.columns([1,1,1,1])
 
     with col1:
-        kpi_card("Total Customers", total_customers)
+        kpi_card("Total Customers", total_customers, "total_customers")
 
     with col2:
-        kpi_card("Total Deposits", f"₹ {total_deposits:,.0f}")
+        kpi_card("Total Deposits", f"₹ {total_deposits:,.0f}", "total_deposits")
 
     with col3:
-        kpi_card("Total Transactions", total_transactions)
+        kpi_card("Total Transactions", total_transactions,"total_transactions")
 
         
     col1, col2, col3, col4 = st.columns([1,1,1,1])
     with col1:
-        kpi_card("Total Credits", f"₹ {total_credits:,.0f}")
+        kpi_card("Total Credits", f"₹ {total_credits:,.0f}","total_credits")
 
     with col2:
-        kpi_card("Total Debits", f"₹ {total_debits:,.0f}")
+        kpi_card("Total Debits", f"₹ {total_debits:,.0f}","total_debits")
 
     with col3:
-        kpi_card("Negative Balance %", negativeBalancePercentage)
+        kpi_card("Negative Balance %", negativeBalancePercentage,"negativeBalancePercentage")
         
     highRiskMetricsData = highRiskMetricsFetch.highRiskMetricsFetch()
     avg_emi_burden = highRiskMetricsData['avg_emi_burden']
@@ -70,13 +68,13 @@ def management_dashboard(st, user_id, user_name):
         
     col1, col2, col3, col4 = st.columns([1,1,1,1])
     with col1:
-        kpi_card("EMI Burden %", avg_emi_burden)
+        kpi_card("EMI Burden %", avg_emi_burden,"avg_emi_burden")
 
     with col2:
-        kpi_card("High Risk Customers", high_risk_count)
+        kpi_card("High Risk Customers", high_risk_count,"high_risk_count")
 
     with col3:
-        kpi_card("NPA Risk %", npa_risk_count)
+        kpi_card("NPA Risk %", npa_risk_count,"npa_risk_count")
         
     years = fetchAvailableYears.fetchAvailableYears()
     if years:
@@ -272,6 +270,39 @@ def management_dashboard(st, user_id, user_name):
         .kpi-value {
             font-size: 32px;
             font-weight: bold;
+            color: #861f41;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+    
+    
+    st.markdown("""
+        <style>
+        div.stButton > button {
+            height: 110px;
+            border-radius: 12px;
+            background-color: white;
+            color: #861f41;
+            border-radius: 12px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.08);
+            border-top: 6px solid #861f41;
+            transition: 0.3s;
+            white-space: pre-line;
+            text-align: center;
+            line-height: 45px;
+            font-size: 20px;
+        }
+        
+        div[data-testid="stButton"] button p {
+            color: #861f41;
+            font-weight: bold;
+            font-size: 18px;
+            margin: 0; /* Streamlit p tags often have default margins */
+        }
+
+        div.stButton > button:hover {
+            background-color: white;
+            transform: translateY(-3px);
             color: #861f41;
         }
         </style>

@@ -20,7 +20,8 @@ def accountTransactionsFetch(account_id):
         return result
 
     except Exception as e:
-        print(f"Database error: {e}")
+        print(f"Database error acc transactions: {e}")
+        connectionInfo.get_active_connection()
         return False
 
     finally:

@@ -45,6 +45,8 @@ def login_form(st, authenticateUser, streamlit_js_eval):
                     if checkAuthUser:
                         st.success("Login Successful ✅")
                         st.session_state['logged_in'] = True
+                        st.session_state['user_role_val']  = checkAuthUser[3]
+
                         js_code = f'localStorage.setItem("user_name_token", "{checkAuthUser[3]}");'
                         streamlit_js_eval(js_expressions=js_code, key='user_name_token_set')
                         
@@ -59,7 +61,7 @@ def login_form(st, authenticateUser, streamlit_js_eval):
                         streamlit_js_eval(js_expressions=js_code, key='user_page_select_token_set')
                         
                         import time
-                        time.sleep(1)
+                        time.sleep(2)
                         st.rerun()
                     else:
                         st.error("Please check your credentials")

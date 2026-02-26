@@ -11,3 +11,13 @@ def get_connection():
         dbname="bankStatementAnalysis"
     )
     return conn
+
+def get_active_connection():
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT 1")
+    except (psycopg2.OperationalError, psycopg2.InterfaceError):
+        st.cache_resource.clear()
+        conn = get_connection()
+    return conn

@@ -27,6 +27,7 @@ def accountInfoFetch(user_id):
 
     except Exception as e:
         print(f"Database error in Accounts Fetch: {e}")
+        connectionInfo.get_active_connection()
         return False
 
     finally:
