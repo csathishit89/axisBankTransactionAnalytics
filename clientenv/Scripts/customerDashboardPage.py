@@ -11,8 +11,8 @@ def customer_dashboard(st, user_id, user_name):
     topHeader.topHeader(st, user_name)
     
     if st.session_state['current_page'] == "customer_dashboard":
-        if st.button("← Back to Dashboard"):
-            st.session_state['current_page'] = 'Dashboard'
+        if st.button("← Back to Customers List"):
+            st.session_state['current_page'] = 'customers_list'
             st.rerun()
         
     accountInformation = accountInfoFetch.accountInfoFetch(user_id)

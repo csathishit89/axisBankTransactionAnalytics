@@ -132,6 +132,7 @@ if st.session_state['logged_in'] == True:
         user_id = streamlit_js_eval(js_expressions="localStorage.getItem('user_id_token')", key='user_id_token_check')
         user_page_select = streamlit_js_eval(js_expressions="localStorage.getItem('user_page_select_token')", key='user_page_select_check')
         user_name = streamlit_js_eval(js_expressions="localStorage.getItem('user_name_token')", key='user_name_token_check')
+        
         if st.session_state['current_page'] == "customers_list":
             customersListPage.customersListPage(st, user_name)
         elif st.session_state['current_page'] == "customer_dashboard":
@@ -145,59 +146,26 @@ if st.session_state['logged_in'] == True:
                 elif user_role == 'Management':
                     managementDashboardPage.management_dashboard(st, user_id, user_name)
             
-        st.markdown('<div class="logout-button"></div>', unsafe_allow_html=True)
-        if st.button("Log Out", key="sidebar_logout"):
-            # Clear persistent token
+         
+            import time
+            time.sleep(1) 
+            st.rerun()
+        
+        st.markdown('<div class="floating-logout-container">', unsafe_allow_html=True)
+        if st.button("Log Out", key="floating_logout_btn"):
+            # Clear persistent tokens and reset the app state
             streamlit_js_eval(js_expressions="localStorage.removeItem('user_name_token');", key='user_name_token_clear')
             streamlit_js_eval(js_expressions="localStorage.removeItem('user_role_token');", key='user_role_token_clear')
             streamlit_js_eval(js_expressions="localStorage.removeItem('user_id_token');", key='user_id_token_clear')
             streamlit_js_eval(js_expressions="localStorage.removeItem('user_page_select_token');", key='user_page_select_token_clear')
             st.session_state['logged_in'] = False
             st.session_state['current_page'] = 'Upload'
-            
-            import time
-            time.sleep(1) 
             st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
     else:
         loginPage.login_form(st, authenticateUser, streamlit_js_eval)
 else:
     loginPage.login_form(st, authenticateUser, streamlit_js_eval)
-
-
-# st.markdown("""
-#         <style>
-#             /* Target ONLY the button with the key 'sidebar_logout' */
-#             div[data-testid="stElementContainer"]:has(button[key="sidebar_logout"]) {
-#                 position: fixed;
-#                 bottom: 20px;
-#                 left: 20px;
-#                 z-index: 999999;
-#                 width: auto;
-#             }
- 
-#             /* Target the specific button container */
-#             div.stButton > button:first-child {
-#                 position: fixed;
-#                 bottom: 20px;
-#                 width: auto !important;
-#                 padding: 4px 20px !important;
-#                 font-size: 14px !important;
-#                 height: auto !important;
-#                 min-height: unset !important;
-#                 background-color: #861f41;
-#                 color: white;
-#                 border-radius: 4px;
-#                 border: 1px solid #861f41;
-#                 z-index: 999999;
-#             }
-
-#             div.stButton > button:first-child:hover {
-#                 background-color: #a21c44;
-#                 border-color: #a21c44;
-#                 color: white;
-#             }
-#         </style>
-#         """, unsafe_allow_html=True)
 
 ## To check session already logged in or not ##
 if not st.session_state['logged_in']:
