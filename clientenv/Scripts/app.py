@@ -146,11 +146,6 @@ if st.session_state['logged_in'] == True:
                 elif user_role == 'Management':
                     managementDashboardPage.management_dashboard(st, user_id, user_name)
             
-         
-            import time
-            time.sleep(1) 
-            st.rerun()
-        
         st.markdown('<div class="floating-logout-container">', unsafe_allow_html=True)
         if st.button("Log Out", key="floating_logout_btn"):
             # Clear persistent tokens and reset the app state
