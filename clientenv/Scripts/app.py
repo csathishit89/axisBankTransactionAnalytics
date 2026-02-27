@@ -6,6 +6,7 @@ import statementPdfUploadPage
 import customerDashboardPage
 import managementDashboardPage
 import customersListPage
+import highRiskCustomersListPage
 
 from streamlit_js_eval import streamlit_js_eval
 
@@ -137,6 +138,8 @@ if st.session_state['logged_in'] == True:
             customersListPage.customersListPage(st, user_name)
         elif st.session_state['current_page'] == "customer_dashboard":
             customerDashboardPage.customer_dashboard(st, st.session_state['selected_user_id'], user_name)
+        elif st.session_state['current_page'] == "highRiskCustomersList":
+            highRiskCustomersListPage.highRiskCustomersListPage(st, user_name)
         else:
             if user_page_select == 'Upload':
                 statementPdfUploadPage.statement_pdf_upload(st, user_id, user_name)
@@ -149,13 +152,15 @@ if st.session_state['logged_in'] == True:
         st.markdown('<div class="floating-logout-container">', unsafe_allow_html=True)
         if st.button("Log Out", key="floating_logout_btn"):
             # Clear persistent tokens and reset the app state
+            st.session_state['logged_in'] = False
+            st.session_state['current_page'] = 'Upload'
             streamlit_js_eval(js_expressions="localStorage.removeItem('user_name_token');", key='user_name_token_clear')
             streamlit_js_eval(js_expressions="localStorage.removeItem('user_role_token');", key='user_role_token_clear')
             streamlit_js_eval(js_expressions="localStorage.removeItem('user_id_token');", key='user_id_token_clear')
             streamlit_js_eval(js_expressions="localStorage.removeItem('user_page_select_token');", key='user_page_select_token_clear')
-            st.session_state['logged_in'] = False
-            st.session_state['current_page'] = 'Upload'
-            st.rerun()
+            import time
+            time.sleep(1)
+            st.rerun() 
         st.markdown('</div>', unsafe_allow_html=True)
     else:
         loginPage.login_form(st, authenticateUser, streamlit_js_eval)

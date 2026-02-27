@@ -26,17 +26,18 @@ def management_dashboard(st, user_id, user_name):
     total_debits = managementDashboardCountInfo['total_debits']
     negativeBalancePercentage = managementDashboardCountInfo['negative_balance_percent']
     high_risk_count = 0
-    net_interest_income = 0
     npa_risk_count = 0
-    total_loans = 0
-    total_loans_outstanding = 0
-    total_profit = 0
     
     def kpi_card(title, value, key):
         if st.button(f"{title}\n{value}", key=key, use_container_width=True):
             if key == "total_customers":
                 print('on customer card click')
                 st.session_state['current_page'] = "customers_list"
+                st.rerun()
+                
+            if key == "high_risk_count":
+                print('on high risk customers count click')
+                st.session_state['current_page'] = "highRiskCustomersList"
                 st.rerun()
         
     col1, col2, col3, col4 = st.columns([1,1,1,1])
