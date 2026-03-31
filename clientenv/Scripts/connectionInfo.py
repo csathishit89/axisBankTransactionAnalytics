@@ -20,4 +20,5 @@ def get_active_connection():
     except (psycopg2.OperationalError, psycopg2.InterfaceError):
         st.cache_resource.clear()
         conn = get_connection()
+        conn.rollback()
     return conn
