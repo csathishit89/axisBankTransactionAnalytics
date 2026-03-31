@@ -9,7 +9,7 @@ def authenticate_user(username_attempt, password_attempt):
         cursor = conn.cursor()
 
         query = """
-            SELECT user_id, user_password, user_role, username
+            SELECT user_id, user_password, user_role, username, branch
             FROM users
             WHERE userid = %s
         """
@@ -33,7 +33,7 @@ def authenticate_user(username_attempt, password_attempt):
 
     except Exception as e:
         print(f"Database error auth user: {e}")
-        connectionInfo.get_active_connection()
+        conn.rollback()
         return False
 
     finally:

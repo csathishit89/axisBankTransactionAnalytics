@@ -47,6 +47,9 @@ def login_form(st, authenticateUser, streamlit_js_eval):
                         st.session_state['logged_in'] = True
                         st.session_state['user_role_val']  = checkAuthUser[3]
 
+                        js_code = f'localStorage.setItem("branch_name_token", "{checkAuthUser[4]}");'
+                        streamlit_js_eval(js_expressions=js_code, key='branch_name_token_set')
+                        
                         js_code = f'localStorage.setItem("user_name_token", "{checkAuthUser[3]}");'
                         streamlit_js_eval(js_expressions=js_code, key='user_name_token_set')
                         

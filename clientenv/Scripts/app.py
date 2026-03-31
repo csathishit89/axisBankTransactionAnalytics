@@ -5,6 +5,7 @@ import loginPage
 import statementPdfUploadPage
 import customerDashboardPage
 import managementDashboardPage
+import branchDashboardPage
 import customersListPage
 import highRiskCustomersListPage
 
@@ -148,6 +149,8 @@ if st.session_state['logged_in'] == True:
                     customerDashboardPage.customer_dashboard(st, user_id, user_name)
                 elif user_role == 'Management':
                     managementDashboardPage.management_dashboard(st, user_id, user_name)
+                elif user_role == 'BranchManager':
+                    branchDashboardPage.branch_dashboard(st, user_id, user_name)
             
         st.markdown('<div class="floating-logout-container">', unsafe_allow_html=True)
         if st.button("Log Out", key="floating_logout_btn"):

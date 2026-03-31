@@ -258,7 +258,7 @@ def management_dashboard(st, user_id, user_name):
                     st.warning("No customer data available.")
                     
                     
-    column_names = ['Branch', 'Total Revenue', 'Total Expenses', 'Net Profit Loss', 'Profit Margin %']
+    column_names = ['Branch', 'Total Revenue', 'Total Expenses']
     
     def format_inr(amount):
         try:
@@ -285,7 +285,7 @@ def management_dashboard(st, user_id, user_name):
 
         if selected_branch=='All Branch':
             st.write("**Bank Branch - Profit / Loss - Status**")
-            currency_cols = ['Total Revenue', 'Total Expenses', 'Net Profit Loss',]
+            currency_cols = ['Total Revenue', 'Total Expenses']
             styled_df = branchesList_df.style.format({col: format_inr for col in currency_cols})
             
             st.dataframe(
@@ -294,7 +294,7 @@ def management_dashboard(st, user_id, user_name):
                 use_container_width=True)
         else:
             row = branchesNetProfitLossInfo[0]
-            st.markdown("#### Branch Performance - Profit / Loss - Status")
+            st.markdown("#### Branch Performance - Status")
 
             col1, col2 = st.columns(2)
 
@@ -309,26 +309,7 @@ def management_dashboard(st, user_id, user_name):
                     <div class="metric-text"><b>Total Expenses:</b> ₹{total_expenses:,.2f}</div>
                 </div>
                 """, unsafe_allow_html=True)
-
-                st.progress(0.7)
-
-
-            with col2:
-                net_profit_loss = row[3]
-                profit_margin_pct = row[4]
-
-                status = "Surplus" if net_profit_loss > 0 else "Deficit"
-                color = "#4CAF50" if net_profit_loss > 0 else "#FF4B4B"
-
-                st.markdown(f"""
-                <div class="card" style="border-left: 6px solid {color};">
-                    <div class="card-title">📊 Profitability Metrics</div>
-                    <div class="metric-text"><b>Net Profit/Loss:</b> ₹{net_profit_loss:,.2f}</div>
-                    <div class="metric-text"><b>Profit Margin:</b> {profit_margin_pct}%</div>
-                    <div class="metric-text"><b>Status:</b> {status}</div>
-                </div>
-                """, unsafe_allow_html=True)
-    
+ 
     
     st.markdown("""
         <style>
